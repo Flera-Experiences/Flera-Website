@@ -7,6 +7,15 @@
   <title>FLERA Experiences</title>
   <link rel="icon" type="image/png" href="assets/images/logo/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      // Initialized with your Public Key
+      emailjs.init("2gO_iYkjfOOC-QB8Y");
+    })();
+  </script>
+
   <style>
     /* -------------------- GLOBAL -------------------- */
     :root {
@@ -18,6 +27,8 @@
       --lavender-shadow: #E6E1F2;
       --success-green: #d4edda;
       --success-text: #155724;
+      --error-red: #f8d7da;
+      --error-text: #721c24;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
@@ -319,41 +330,32 @@
   </a>
 
   <script>
-   // Consolidated Navigation, Menu Close, and Form Reset Logic
-const mobileMenu = document.getElementById('mobile-menu');
-const navLinks = document.getElementById('nav-links');
-const contactForm = document.getElementById('contactForm');
-const statusMsg = document.getElementById('formStatus');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navLinks = document.getElementById('nav-links');
+    const contactForm = document.getElementById('contactForm');
+    const statusMsg = document.getElementById('formStatus');
 
-// 1. Toggle mobile menu
-if (mobileMenu) {
-    mobileMenu.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-    });
-}
+    // 1. Toggle mobile menu
+    if (mobileMenu) {
+        mobileMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    }
 
-// 2. Handle all link clicks (Closing menu + Resetting form)
-document.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href');
-
-        // Close mobile menu if any link is clicked
-        if (navLinks) navLinks.classList.remove('active');
-
-        // Check if the link points to #home or is the logo
-        if (href === '#home' || link.closest('.logo-container')) {
-            if (contactForm) {
-                contactForm.reset(); // Clears all text and selections
+    // 2. Handle menu closing and form reset on Home click
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (navLinks) navLinks.classList.remove('active');
+            if (href === '#home' || link.closest('.logo-container')) {
+                if (contactForm) contactForm.reset();
+                if (statusMsg) statusMsg.style.display = 'none';
             }
-            if (statusMsg) {
-                statusMsg.style.display = 'none'; // Hides previous success/error messages
-            }
-        }
+        });
     });
-});
 
-    // 2. Portfolio Generation
-    const portfolioImages = ['img5.webp', 'img3.webp', 'img4.webp','img2.webp','img1.webp']; 
+    // 3. Portfolio Generation
+    const portfolioImages = ['img5.webp','img2.webp','img3.webp','img4.webp','img1.webp']; 
     const gallery = document.getElementById('portfolio-gallery');
     portfolioImages.forEach(img => {
       const item = document.createElement('div');
@@ -362,8 +364,7 @@ document.querySelectorAll('a').forEach(link => {
       gallery.appendChild(item);
     });
 
-    
-    // 3. Phone and Date Validation
+    // 4. Phone and Date Validation
     const phoneInput = document.getElementById('phone');
     phoneInput.addEventListener('input', function (e) {
         this.value = this.value.replace(/\D/g, ''); 
@@ -372,32 +373,23 @@ document.querySelectorAll('a').forEach(link => {
     const datePicker = document.getElementById('date');
     if(datePicker) datePicker.min = new Date().toISOString().split("T")[0];
 
-    // 4. Scroll and Animation Logic
+    // 5. Scroll Logic
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('main-nav');
       const navItems = document.querySelectorAll('.nav-item');
-      
-      // Update Navbar background
       if (window.pageYOffset > 80) nav.classList.add('scrolled');
       else nav.classList.remove('scrolled');
-
-      // Clear highlights when at the very top (Hero section)
       if (window.pageYOffset < 300) {
         navItems.forEach(a => a.classList.remove('active'));
       }
     }, { passive: true });
 
-    // 5. Intersection Observer
-    const observerOptions = {
-      threshold: 0.2,
-      rootMargin: "-15% 0px -20% 0px"
-    };
-
+    // 6. Intersection Observer
+    const observerOptions = { threshold: 0.2, rootMargin: "-15% 0px -20% 0px" };
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if(entry.isIntersecting) {
           entry.target.classList.add('visible');
-          
           const id = entry.target.getAttribute('id');
           if (id && id !== 'home') {
             document.querySelectorAll('.nav-item').forEach(a => {
@@ -407,49 +399,43 @@ document.querySelectorAll('a').forEach(link => {
         }
       });
     }, observerOptions);
-
     document.querySelectorAll('section, .fade-in').forEach(el => observer.observe(el));
 
-    // 6. Form Submission Logic
-         document.getElementById('contactForm').addEventListener('submit', function(e) {
-         e.preventDefault();
-  
-        // Honeypot check
-        if (this.elements['b_address'].value !== "") return;
-  
-        const btn = document.getElementById('submitBtn');
-        const status = document.getElementById('formStatus');
-  
-        btn.innerText = "Sending...";
-        btn.disabled = true;
-  
-        fetch('send_email.php', { method: 'POST', body: new FormData(this) })
-        .then(res => res.text())
-        .then(data => {
-             status.style.display = "block";
-             if (data.trim() === "Success") {
-                 status.innerText = "Thank you! Your message has been sent.";
-                 status.style.background = "var(--success-green)";
-                 status.style.color = "var(--success-text)";
-                 this.reset(); // Clears form on success
-    } else {
-        status.innerText = "Server Error: " + data;
-        status.style.background = "#f8d7da";
-        status.style.color = "#721c24";
-    }
-  })
-  .catch(err => {
-    status.style.display = "block";
-    status.innerText = "Could not connect to server or offline.";
-    status.style.background = "#f8d7da";
-    status.style.color = "#721c24";
-  })
-  .finally(() => {
-    // This runs NO MATTER WHAT - button will always reset
-    btn.innerText = "Submit Inquiry";
-    btn.disabled = false;
+    // 7. NEW EMAILJS SUBMISSION LOGIC
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Honeypot check
+      if (this.elements['b_address'].value !== "") return;
+
+      const btn = document.getElementById('submitBtn');
+      const status = document.getElementById('formStatus');
+
+      btn.innerText = "Sending...";
+      btn.disabled = true;
+
+      // Actual IDs from your EmailJS Dashboard
+      const serviceID = 'service_rw2unku';
+      const templateID = 'template_cnu4a97';
+
+      emailjs.sendForm(serviceID, templateID, this)
+        .then(() => {
+          status.style.display = "block";
+          status.innerText = "Thank you! Your message has been sent.";
+          status.style.background = "var(--success-green)";
+          status.style.color = "var(--success-text)";
+          contactForm.reset();
+        }, (err) => {
+          status.style.display = "block";
+          status.innerText = "Error: " + JSON.stringify(err);
+          status.style.background = "var(--error-red)";
+          status.style.color = "var(--error-text)";
+        })
+        .finally(() => {
+          btn.innerText = "Submit Inquiry";
+          btn.disabled = false;
+        });
     });
-  });
   </script>
 </body>
 </html>
